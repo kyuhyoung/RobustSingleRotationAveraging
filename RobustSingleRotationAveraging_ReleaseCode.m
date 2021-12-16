@@ -1,62 +1,6 @@
-clc;
-
-%% Example: Average 100 rotations (50 inliers, 50 outliers)
-
-n_inliers = 50;
-n_outliers = 50;
-inlier_noise_level = 5; %deg;
-R_true = RandomRotation(pi); 
-
-
-% 1. Create input rotaions:
-n_samples = n_inliers + n_outliers;
-R_samples = cell(1, n_samples);
-                
-for i = 1:n_samples
-    if (i <= n_inliers)
-        % Inliers: perturb by 5 deg.
-        axis_perturb = rand(3,1)-0.5;
-        axis_perturb = axis_perturb/norm(axis_perturb);
-        angle_perturb = normrnd(0,inlier_noise_level/180*pi); 
-        R_perturb = RotationFromUnitAxisAngle(axis_perturb, angle_perturb);
-        R_samples{i} = R_perturb*R_true;
-    else
-        % Outliers: completely random.
-        R_samples{i} = RandomRotation(pi); 
-    end   
-end
-
-% 2-a. Average them using Hartley's L1 geodesic method 
-% (with our initialization and outlier rejection scheme):
-
-b_outlier_rejection = true;
-n_iterations = 10;
-thr_convergence = 0.001;
-tic;
-R_geodesic = GeodesicL1Mean(R_samples, b_outlier_rejection, n_iterations, thr_convergence);
-time_geodesic = toc;
-
-% 2-b. Average them using our approximate L1 chordal method 
-% (with our initialization and outlier rejection shceme)
-
-b_outlier_rejection = true;
-n_iterations = 10;
-thr_convergence = 0.001;
-tic;
-R_chordal = ChordalL1Mean(R_samples, b_outlier_rejection, n_iterations, thr_convergence);
-time_chordal = toc;
-
-
-% 3. Evaluate the rotation error (deg):
-
-error_GeodesicL1Mean = abs(acosd((trace(R_true*R_geodesic')-1)/2));
-error_ChordalL1Mean = abs(acosd((trace(R_true*R_chordal')-1)/2));
-
-disp(['Error (geodesic L1 mean) = ', num2str(error_GeodesicL1Mean), ' deg, took ', num2str(time_geodesic*1000), ' ms'])
-disp(['Error (chordal L1 mean) = ', num2str(error_ChordalL1Mean), ' deg, took ', num2str(time_chordal*1000), ' ms' ])
-disp('')
-
-
+%clc;
+close all; clear all;
+pkg load statistics;
 
 %% Function definitions
 
@@ -73,13 +17,19 @@ function out = SkewSymmetricMatrix(in)
     out=[0 -in(3) in(2) ; in(3) 0 -in(1) ; -in(2) in(1) 0 ];
 end
 
+addpath(pwd);
 function R = RandomRotation(max_angle_rad)
-
+    %disp(['max_angle_rad : ', num2str(max_angle_rad)])
+    %disp(['max_angle_rad : ', num2str(max_angle_rad)]);
+    %disp('shit');
     unit_axis = rand(3,1)-0.5;
     unit_axis = unit_axis/norm(unit_axis);
-    angle = rand*max_angle_rad;
+    angle = rand * max_angle_rad;
+    %unit_axis
+    %angle
     R = RotationFromUnitAxisAngle(unit_axis, angle);
-
+    %R
+    %pause(100);
 end
 
 function R = RotationFromUnitAxisAngle(unit_axis, angle)
@@ -87,7 +37,10 @@ function R = RotationFromUnitAxisAngle(unit_axis, angle)
     if (angle==0)
         R = eye(3);
     else
+        %unit_axis        
         so3 = SkewSymmetricMatrix(unit_axis);
+        %so3
+        %pause(100);        
         R = eye(3)+so3*sin(angle)+so3^2*(1-cos(angle));
     end
 end
@@ -128,7 +81,13 @@ function R = GeodesicL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conv
         vs = zeros(3,n_samples);
         v_norms = zeros(1,n_samples);
         for i = 1:n_samples
-            v =  logarithm_map(R_input{i}*R');
+            v =  logarithm_map(R_input{i} * R');
+            %R_tmp = R_input{i} * R';
+            %v_tmp = logarithm_map(R_input{i} * R');          
+            %R_tmp
+            %v_tmp
+            %v
+            %pause(100);
             v_norm = norm(v);
             vs(:,i) = v;
             v_norms(i) = v_norm;
@@ -237,5 +196,96 @@ function R = ChordalL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conve
     end
     
     R = ProjectOntoSO3(reshape(s, [3 3]));
-
+    R
+    s_tmp = reshape(s, [3 3])
+    R_tmp = ProjectOntoSO3(s_tmp)
+    pause(100);
 end
+
+
+%%addpath(pwd);
+
+rand('state', 0.00);
+%% Example: Average 100 rotations (50 inliers, 50 outliers)
+
+%n_inliers = 50; n_outliers = 50;
+n_inliers = 5; n_outliers = 2;
+inlier_noise_level = 5; %deg;
+R_true = RandomRotation(pi); 
+
+
+% 1. Create input rotaions:
+n_samples = n_inliers + n_outliers;
+R_samples = cell(1, n_samples);
+                
+for i = 1:n_samples
+    if (i <= n_inliers)
+        % Inliers: perturb by 5 deg.
+        axis_perturb = rand(3,1)-0.5;
+        axis_perturb = axis_perturb/norm(axis_perturb);
+        %angle_perturb = normrnd(0,inlier_noise_level/180*pi); 
+        angle_perturb = unifrnd(-inlier_noise_level / 180 * pi,  inlier_noise_level / 180 * pi); 
+        R_perturb = RotationFromUnitAxisAngle(axis_perturb, angle_perturb);
+        R_samples{i} = R_perturb*R_true;
+    else
+        % Outliers: completely random.
+        R_samples{i} = RandomRotation(pi); 
+    end   
+end
+
+R_samples_2 = cell(1, n_samples);
+R_samples_2(1) = [  0.87568	0.30871	0.37134; 
+                    -0.015865	0.78695	-0.61681;
+                    -0.48264	0.53423	0.69401 ];                    
+R_samples_2(2) = [  0.88084	0.27657	0.38424;
+                    0.014008	0.79603	-0.60509;
+                    -0.47321	0.53837	0.6973 ];
+R_samples_2(3) = [  0.89546	0.2712	0.35299;
+                    0.012714	0.77708	-0.62928;
+                    -0.44496	0.56798	0.69239 ];
+R_samples_2(4) = [  0.85608	0.27909	0.43502;
+                    0.060279	0.78202	-0.62033;
+                    -0.51332	0.55727	0.65265 ];
+R_samples_2(5) = [  0.87326	0.26435	0.40932;
+                    0.030012	0.80926	-0.58668;
+                    -0.48634	0.52461	0.69876 ];
+R_samples_2(6) = [  -0.33503	0.24321	-0.91028;
+                    -0.061857	0.95835	0.27882;
+                    0.94017	0.14972	-0.30603  ];
+R_samples_2(7) = [  -0.073099	0.96268	0.26058;
+                    0.9324	0.1587	-0.32472;
+                    -0.35396	0.21923	-0.9092 ];
+
+R_samples = R_samples_2;
+% 2-a. Average them using Hartley's L1 geodesic method 
+% (with our initialization and outlier rejection scheme):
+
+b_outlier_rejection = true;
+n_iterations = 10;
+thr_convergence = 0.001;
+tic;
+R_geodesic = GeodesicL1Mean(R_samples, b_outlier_rejection, n_iterations, thr_convergence);
+time_geodesic = toc;
+
+% 2-b. Average them using our approximate L1 chordal method 
+% (with our initialization and outlier rejection shceme)
+
+b_outlier_rejection = true;
+n_iterations = 10;
+thr_convergence = 0.001;
+tic;
+R_chordal = ChordalL1Mean(R_samples, b_outlier_rejection, n_iterations, thr_convergence);
+time_chordal = toc;
+
+
+% 3. Evaluate the rotation error (deg):
+
+error_GeodesicL1Mean = abs(acosd((trace(R_true*R_geodesic')-1)/2));
+error_ChordalL1Mean = abs(acosd((trace(R_true*R_chordal')-1)/2));
+
+disp(['Error (geodesic L1 mean) = ', num2str(error_GeodesicL1Mean), ' deg, took ', num2str(time_geodesic*1000), ' ms'])
+disp(['Error (chordal L1 mean) = ', num2str(error_ChordalL1Mean), ' deg, took ', num2str(time_chordal*1000), ' ms' ])
+disp('')
+
+
+
