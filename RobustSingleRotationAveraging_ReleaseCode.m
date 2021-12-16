@@ -212,8 +212,11 @@ rand('state', 0.00);
 n_inliers = 5; n_outliers = 2;
 inlier_noise_level = 5; %deg;
 R_true = RandomRotation(pi); 
-
-
+R_true
+% R_true = [  0.880924   0.277119   0.383637;
+%              0.013324   0.795787  -0.605429;
+%              -0.473070   0.538449   0.697336 ]
+%
 % 1. Create input rotaions:
 n_samples = n_inliers + n_outliers;
 R_samples = cell(1, n_samples);
