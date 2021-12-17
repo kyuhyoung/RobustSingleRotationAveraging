@@ -66,6 +66,20 @@ function R = GeodesicL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conv
         vectors_total(:,i)= R_input{i}(:);
     end
     s = median(vectors_total,2);
+    %s = 
+    %  0.873260
+    %  0.014008
+    %  -0.473210
+    %  0.276570
+    %  0.786950
+    %  0.534230
+    %  0.371340
+    %  -0.605090
+    %  0.692390    
+    
+    %vectors_total
+    %s
+    %pause(100);
     
     [U,~,V] = svd(reshape(s, [3 3]));
     R = U*V.';
@@ -196,10 +210,10 @@ function R = ChordalL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conve
     end
     
     R = ProjectOntoSO3(reshape(s, [3 3]));
-    R
-    s_tmp = reshape(s, [3 3])
-    R_tmp = ProjectOntoSO3(s_tmp)
-    pause(100);
+    %R
+    %s_tmp = reshape(s, [3 3])
+    %R_tmp = ProjectOntoSO3(s_tmp)
+    %pause(100);
 end
 
 
