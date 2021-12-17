@@ -112,6 +112,13 @@ function R = GeodesicL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conv
         if (b_outlier_rejection)
             sorted_v_norms = sort(v_norms);
             v_norm_firstQ = sorted_v_norms(ceil(n_samples/4));
+            %v_norms  
+            %0.0307985   0.0057731   0.0401294   0.0716570   0.0369661   2.4650449   1.9336392
+            %sorted_v_norms  
+            %0.0057731   0.0307985   0.0369661   0.0401294   0.0716570   1.9336392   2.4650449
+            %v_norm_firstQ
+            #0.030798
+            %pause(100);
             if (n_samples <= 50)
                 thr = max(v_norm_firstQ, 1);
 
@@ -129,10 +136,20 @@ function R = GeodesicL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conv
             if (v_norm > thr)
                 continue;
             end
+            %if (i > 1)
+            %  step_num
+            %  v
+            %  v_norm
+            %  v_over_v_norm = v / v_norm
+            %  step_num_after = step_num + v/v_norm
+            %  pause(100);       
+            %endif
             step_num = step_num + v/v_norm;
             step_den = step_den + 1/v_norm;
         end
-
+        %step_num
+        %step_den
+        %pause(100);
         delta = step_num/step_den;
         delta_angle = norm(delta);
         delta_axis = delta/delta_angle;
@@ -160,8 +177,19 @@ function R = ChordalL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conve
                 
     % 2. Optimize
     for j = 1:n_iterations
-        if (sum(sum(abs(vectors_total-s))==0) ~= 0)
-            s = s+rand(size(s,1),1)*0.001;
+        %vectors_total
+        %s
+        %vectors_total_minus_s = vectors_total - s
+        %abs_vectors_total_minus_s = abs(vectors_total_minus_s)
+        %sum_abs_vectors_total_minus_s = sum(abs_vectors_total_minus_s)
+        %sum_abs_vectors_total_minus_s_0 = sum_abs_vectors_total_minus_s == 0
+        %sum_sum_abs_vectors_total_minus_s_0 = sum(sum_abs_vectors_total_minus_s_0)
+        %sum_sum_abs_vectors_total_minus_s_0_2 = sum(sum(abs(vectors_total - s))==0)
+        if (sum(sum(abs(vectors_total - s))==0) ~= 0)
+            %s
+            s = s + rand(size(s, 1), 1) * 0.001;
+            %s
+            %pause(100);
         end
 
         v_norms = zeros(1,n_samples);
@@ -226,7 +254,7 @@ rand('state', 0.00);
 n_inliers = 5; n_outliers = 2;
 inlier_noise_level = 5; %deg;
 R_true = RandomRotation(pi); 
-R_true
+%R_true
 % R_true = [  0.880924   0.277119   0.383637;
 %              0.013324   0.795787  -0.605429;
 %              -0.473070   0.538449   0.697336 ]
@@ -243,7 +271,22 @@ for i = 1:n_samples
         %angle_perturb = normrnd(0,inlier_noise_level/180*pi); 
         angle_perturb = unifrnd(-inlier_noise_level / 180 * pi,  inlier_noise_level / 180 * pi); 
         R_perturb = RotationFromUnitAxisAngle(axis_perturb, angle_perturb);
-        R_samples{i} = R_perturb*R_true;
+        %axis_perturb
+        % 0.037644
+        % -0.317405
+        % 0.947543        
+        %angle_perturb
+        % -0.034328
+        %angle_axis_perturb = axis_perturb * angle_perturb  
+        % -0.0012923
+        % 0.0108960
+        % -0.0325276      
+        %R_perturb
+        % 0.9994117   0.0325142   0.0109149
+        % -0.0325283   0.9994702   0.0011148
+        % -0.0108728  -0.0014692   0.9999398
+        %pause(100);
+        R_samples{i} = R_perturb * R_true;
     else
         % Outliers: completely random.
         R_samples{i} = RandomRotation(pi); 
