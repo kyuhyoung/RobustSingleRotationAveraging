@@ -91,7 +91,6 @@ function R = GeodesicL1Mean(R_input, b_outlier_rejection, n_iterations, thr_conv
     % 2. Optimize
     
     for j = 1:n_iterations
-
         vs = zeros(3,n_samples);
         v_norms = zeros(1,n_samples);
         for i = 1:n_samples
