@@ -1,5 +1,6 @@
 # C++ version of RobustSingleRotationAveraging
 OpenCV is required for matrix operations.
+
 Checked that the outputs of c++ version are almost the same as those of original Matlab version given the same inputs. 
 
 # RobustSingleRotationAveraging
