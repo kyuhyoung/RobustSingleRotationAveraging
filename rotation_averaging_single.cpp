@@ -13,10 +13,12 @@ double lap_time(struct timespec& t_begin, struct timespec& t_end, bool is_millis
     return is_millisecond ? 1000.0 * lap_sec : lap_sec;
 }
 
-float acosd(float cosain)
+double acosd(double cosain)
 {
     //float acos_rad = acos(cosain);
-    return 180.0 * acos(cosain) / CV_PI;     
+    //cout << "acos(cosain) : " << acos(cosain) << endl;
+    return 180.0 * acos(cosain) / CV_PI;    
+
 }
 
 Mat zeros_like(const Mat& mat_ori)
@@ -35,10 +37,26 @@ T median_of_vector(vector<T> &v, int n_sp)
     return v[n];
 }
 
-Mat ProjectOntoSO3(const Mat& rot_mat_ori)
+
+Mat ProjectOntoSO3(Mat inMat)
 {
-    return rot_mat_ori;
-}    
+  Mat _, U, V, V_, R;  
+  int minLoc[2], maxLoc[2];
+  double minVal, maxVal;
+  SVDecomp(inMat, _, U, V);
+  V_ = V.t();
+  U.at<double>(0,0) *= -1; U.at<double>(0,1) *= -1; U.at<double>(1,0) *= -1; U.at<double>(1,1) *= -1; U.at<double>(2,0) *= -1; U.at<double>(2,1) *= -1;
+  V_.at<double>(0,0) *= -1;V_.at<double>(0,1) *= -1; V_.at<double>(1,0) *= -1; V_.at<double>(1,1) *= -1; V_.at<double>(2,0) *= -1; V_.at<double>(2,1) *= -1;
+  //cout << "V_" << endl << V_.t() << endl;
+  R = U*V_.t();
+  if (determinant(R)<0)
+  {
+    V_.at<double>(0,2) *= -1;V_.at<double>(1,2) *= -1; V_.at<double>(2,2) *= -1;
+    R = U*V_.t();
+  }
+    
+  return R;
+}
 
 Mat logarithm_map(const Mat& rot_mat)
 {
@@ -80,6 +98,7 @@ Mat GeodesicL1Mean(vector<Mat> R_input, bool b_outlier_rejection, int n_iteratio
     }     
     
     Mat R = ProjectOntoSO3(s);
+    //cout << "R : " << endl << R << endl;    exit(0);
     for(int iI = 0; iI < n_iterations; iI++)
     {
         vector<Mat> vs(n_samples);
@@ -99,6 +118,22 @@ Mat GeodesicL1Mean(vector<Mat> R_input, bool b_outlier_rejection, int n_iteratio
             double v_norm_firstQ = sorted_v_norms[idx_firstQ];
             thr = n_samples <= 50 ? MAX(v_norm_firstQ, 1.0) : MAX(v_norm_firstQ, 0.5);
         }
+        #if 0
+        cout << "thr : " << thr << endl;
+        cout << "vs : " << endl;
+        for(auto v : vs)
+        {
+            cout << v << endl;
+        }
+        cout << "v_norms : " << endl;
+        for(auto v_norm : v_norms) 
+        {
+            cout << v_norm << ", ";
+        }
+        cout << endl;
+        exit(0);
+        #endif  //  0
+
         Mat step_num = zeros_like(vs[0]);
         double step_den = 0;
         for(int iS = 0; iS < n_samples; iS++)
@@ -119,9 +154,16 @@ Mat GeodesicL1Mean(vector<Mat> R_input, bool b_outlier_rejection, int n_iteratio
         R = R_delta * R;
         if(delta_angle_rad < thr_convergence)
         {
+        //cout << "delta : " << endl << delta << endl;
+        //cout << "delta_angle_rad : " << delta_angle_rad << endl; 
+        //cout << "R_delta : " << endl << R_delta << endl;
+        //cout << "R : " << endl << R << endl;
+
             break;
         }
     }
+        //cout << "R : " << endl << R << endl;
+        //exit(0);
     return R;
 }
 
@@ -168,9 +210,10 @@ Mat ChordalL1Mean(vector<Mat> R_input, bool b_outlier_rejection, int n_iteration
             s.at<double>(iR, iC) = val_med;
         }
     }     
- 
+    //cout << "s : " << endl << s << endl;    exit(0); 
     for(int iI = 0; iI < n_iterations; iI++)
     {
+        //cout << "iI : " << iI << endl;    //exit(0); 
         s = avoid_median_to_be_the_same_as_one_of_samples(R_input, s);
         vector<double> v_norms(n_samples);
         for(int iS = 0; iS < n_samples; iS++)
@@ -190,6 +233,7 @@ Mat ChordalL1Mean(vector<Mat> R_input, bool b_outlier_rejection, int n_iteration
             //  2*sqrt(2)*sin(1/2) is approximately 1.356
             //  2*sqrt(2)*sin(0.5/2) is approximately 0.7
         }
+        //cout << "thr : " << thr << endl;    exit(0);
         Mat step_num = zeros_like(s);
         double step_den = 0;
         for(int iS = 0; iS < n_samples; iS++)
@@ -202,14 +246,21 @@ Mat ChordalL1Mean(vector<Mat> R_input, bool b_outlier_rejection, int n_iteration
             step_num += R_input[iS] / v_norm;
             step_den += 1.0 / v_norm;
         }
-        Mat s_prev = s;
+        Mat s_prev = s.clone();
         s = step_num / step_den;
+        //cout << "s : " << endl << s << endl;    //exit(0); 
         Mat update_medvec = s - s_prev;
+        //cout << "update_medvec : " << update_medvec << endl;
+        //cout << "thr_convergence : " << thr_convergence << endl;
+        //double t1 = norm(update_medvec);
+        //cout << "t1 : " << t1 << endl;
+        //cout << endl;
         if(norm(update_medvec) < thr_convergence)
         {
             break;
         }     
-    }     
+    }  
+    //exit(0);
     Mat R = ProjectOntoSO3(s);
     return R;
 }

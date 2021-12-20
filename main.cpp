@@ -74,16 +74,30 @@ int main( int argc, char* argv[] )
     clock_gettime( CLOCK_MONOTONIC, &t_begin);
     Mat R_geodesic = GeodesicL1Mean(R_samples, b_outlier_rejection, n_iterations, thr_convergence);
     clock_gettime( CLOCK_MONOTONIC, &t_end_1);
+    #if 0
+    Scalar t1 = trace(R_true * R_geodesic.t());
+    cout << "t1 : " << t1 << endl;
+    double t2 = t1.val[0] - 1.0;
+    cout << "t2 : " << t2 << endl;
+    double t3 = t2 / 2.0;
+    cout << "t3 : " << t3 << endl;
+    double t4 = acosd(t3);
+    cout << "t4 : " << t4 << endl;
+    double t5 = fabs(t4);
+    cout << "t5 : " << t5 << endl;
+    #endif  //  0
     float error_GeodesicL1Mean = fabs(acosd((trace(R_true * R_geodesic.t()).val[0] - 1.0) / 2.0));
-    double time_geodesic = lap_time(t_begin, t_end_1, false);
-    cout << "Error (geodesic L1 mean) = " << error_GeodesicL1Mean << " deg, took " << time_geodesic << "ms" << endl;
+    double time_geodesic = lap_time(t_begin, t_end_1, true);
+    cout << "Error (geodesic L1 mean) = " << error_GeodesicL1Mean << " deg, took " << time_geodesic << " ms" << endl;
     //exit(0);
     Mat R_chordal = ChordalL1Mean(R_samples, b_outlier_rejection, n_iterations, thr_convergence);
     clock_gettime( CLOCK_MONOTONIC, &t_end_2);
+    //cout << "R_geodesic : " << endl << R_geodesic << endl;    
+    //cout << "R_chordal : " << endl << R_chordal << endl;    
     //error_GeodesicL1Mean = abs(acosd((trace(R_true*R_geodesic')-1)/2));
     //error_ChordalL1Mean = abs(acosd((trace(R_true*R_chordal')-1)/2));
     float error_ChordalL1Mean = fabs(acosd((trace(R_true * R_chordal.t()).val[0] - 1.0) / 2.0));
-    double time_chordal = lap_time(t_end_1, t_end_2, false);
-    cout << "Error (chordal L1 mean) = " << error_ChordalL1Mean << " deg, took " << time_chordal << "ms" << endl;
+    double time_chordal = lap_time(t_end_1, t_end_2, true);
+    cout << "Error (chordal L1 mean) = " << error_ChordalL1Mean << " deg, took " << time_chordal << " ms" << endl;
     return 1;
 }  

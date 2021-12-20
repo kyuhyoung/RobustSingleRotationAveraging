@@ -8,7 +8,7 @@ using namespace std;
 
 double lap_time(struct timespec& t_begin, struct timespec& t_end, bool is_millisecond);
 
-float acosd(float cosain);
+double acosd(double cosain);
 
 Mat GeodesicL1Mean(vector<Mat> li_rot_mat, bool outlier_rejection, int n_iterations, float thr_convergence);
 Mat ChordalL1Mean(vector<Mat> li_rot_mat, bool outlier_rejection, int n_iterations, float thr_convergence);
