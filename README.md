@@ -1,5 +1,5 @@
 # C++ version of RobustSingleRotationAveraging
-Checked that the results of c++ version is almost the same as the original Matlab version 
+Checked that the outputs of c++ version are almost the same as those of original Matlab version given the same inputs. 
 
 # RobustSingleRotationAveraging
 MATLAB implementation of our method proposed in "Robust Single Rotation Averaging" ([arXiv](https://arxiv.org/abs/2004.00732))
