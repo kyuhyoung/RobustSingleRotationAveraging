@@ -4,14 +4,6 @@ pkg load statistics;
 
 %% Function definitions
 
-
-
-
-
-
-
-%%addpath(pwd);
-
 rand('state', 0.00);
 %% Example: Average 100 rotations (50 inliers, 50 outliers)
 
