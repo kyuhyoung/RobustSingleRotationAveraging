@@ -8,6 +8,12 @@ $ make
 $ ./RobustSingleRotationAveraging --th_convergence=0.001 --n_iter=10 --outlier=1
 ```
 
+To check that the conversion is correct, in Matlab Command Window,
+```console
+>> RobustSingleRotationAveraging_ReleaseCode true
+```
+And compare the output with that of the above.
+
 # Robust averaging of 3D transforamtion (Matlab)
 Not only RobustSingleRotationAveraging, geometric median of 3D translation is also computed from a text file of 'x, y, z, rx, ry, rz' formatted lines.
 
