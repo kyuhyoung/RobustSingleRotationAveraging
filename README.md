@@ -11,7 +11,7 @@ $ ./RobustSingleRotationAveraging --th_convergence=0.001 --n_iter=10 --outlier=1
 # Robust averaging of 3D transforamtion
 Not only RobustSingleRotationAveraging, geometric median of 3D translation is also computed from a text file of 'x, y, z, rx, ry, rz' formatted lines.
 
-Given the file of x_y_z_rx_ry_rz.txt each line of which is in 'x, y, z, rx, ry, rz' format,
+Given the file 'x_y_z_rx_ry_rz.txt' each line of which is in 'x, y, z, rx, ry, rz' format,
 
 for chordal median,
 ```console
