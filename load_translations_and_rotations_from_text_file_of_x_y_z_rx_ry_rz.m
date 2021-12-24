@@ -9,6 +9,10 @@ function [li_homo_mat, li_tra, li_rot_vec] = load_translations_and_rotations_fro
     if ~ischar(tline)
       break      
     endif
+    %tline
+    if(isempty(tline))
+      continue
+    endif    
     if("#" == tline(1))
       continue
     endif    
